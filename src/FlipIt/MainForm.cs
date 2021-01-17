@@ -35,6 +35,7 @@ namespace ScreenSaver
         private readonly int fontSize = 350;
         private readonly bool will24HoursWillBeShowed;
         private readonly bool willSecondsBeShowed;
+        private readonly int citiesSortOrderType;
         private readonly Brush backFillTop = new SolidBrush(backColorTop);
         private readonly Brush backFillBottom = new SolidBrush(backColorBottom);
         private readonly Brush FontBrush = new SolidBrush(Color.FromArgb(255, 183, 183, 183));
@@ -77,6 +78,7 @@ namespace ScreenSaver
             GetConfigFilePath();
             will24HoursWillBeShowed = Will24HoursBeShowed();
             willSecondsBeShowed = WillSecondsBeShowed();
+            citiesSortOrderType = GetCitiesSortOrder();
         }
 
         public MainForm(IntPtr previewWndHandle)
@@ -100,6 +102,7 @@ namespace ScreenSaver
             GetConfigFilePath();
             will24HoursWillBeShowed = Will24HoursBeShowed();
             willSecondsBeShowed = WillSecondsBeShowed();
+            citiesSortOrderType = GetCitiesSortOrder();
             previewMode = true;
         }
 
@@ -277,7 +280,7 @@ namespace ScreenSaver
             var boxSize = new Size(boxHeight.Percent(BoxWidthPercentage), boxHeight);
             var horizontalGap = boxSize.Height.Percent(HorizontalGapBetweenBoxesPercent);
 
-            foreach (var city in Cities.OrderBy(c => c.CurrentTime))
+            foreach (var city in (citiesSortOrderType == 1 ? Cities.OrderBy(c => c.DisplayName) : Cities.OrderBy(c => c.CurrentTime)))
             {
                 city.RefreshTime(SystemTime.Now);
                 var s = city.DisplayName.PadRight(maxNameLengthInChars + 2) + FormatTime(city.CurrentTime);
@@ -306,6 +309,31 @@ namespace ScreenSaver
             }
 
             configFilePath = userApplicationDataFolderPath + Path.DirectorySeparatorChar + "flipit_config.xml";
+        }
+
+        private int GetCitiesSortOrder()
+        {
+            // 1 -> Name
+            // 2 -> Time
+
+            if (!File.Exists(configFilePath))
+            {
+                return 1;
+            }
+            else
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+
+                using (StreamReader streamReader = new StreamReader(configFilePath, Encoding.UTF8))
+                {
+                    using (XmlReader reader = XmlReader.Create(streamReader, new XmlReaderSettings()))
+                    {
+                        xmlDoc.Load(reader);
+
+                        return xmlDoc.GetElementsByTagName("CitiesSortOrder")[0].InnerText.ToUpperInvariant().Equals("NAME") ? 1 : 2;
+                    }
+                }
+            }
         }
 
         private bool Will24HoursBeShowed()

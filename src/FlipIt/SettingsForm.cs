@@ -98,6 +98,9 @@ namespace ScreenSaver
                         xmlConf += "<ShowSeconds>";
                         xmlConf += "False";
                         xmlConf += "</ShowSeconds>";
+                        xmlConf += "<CitiesSortOrder>";
+                        xmlConf += "Name";
+                        xmlConf += "</CitiesSortOrder>";
                         xmlConf += "</config>";
 
                         using (Stream stream = xmlConf.ToStream())
@@ -108,6 +111,11 @@ namespace ScreenSaver
                                 xmlDoc.Save(writer);
                             }
                         }
+
+                        amPm12HoursIndicatorCheckbox.Checked = true;
+                        showSecondsCheckbox.Checked = false;
+                        sortByNameCheckbox.Checked = true;
+                        sortByTimeCheckbox.Checked = false;
                     }
 
                 }
@@ -130,6 +138,8 @@ namespace ScreenSaver
 
                         amPm12HoursIndicatorCheckbox.Checked = xmlDoc.GetElementsByTagName("Show24Hours")[0].InnerText.ToUpperInvariant().Equals("FALSE");
                         showSecondsCheckbox.Checked = xmlDoc.GetElementsByTagName("ShowSeconds")[0].InnerText.ToUpperInvariant().Equals("TRUE");
+                        sortByNameCheckbox.Checked = xmlDoc.GetElementsByTagName("CitiesSortOrder")[0].InnerText.ToUpperInvariant().Equals("NAME");
+                        sortByTimeCheckbox.Checked = !sortByNameCheckbox.Checked;
                     }
                 }
             }
@@ -208,6 +218,9 @@ namespace ScreenSaver
                     xmlConf += "<ShowSeconds>";
                     xmlConf += showSecondsCheckbox.Checked ? "True" : "False";
                     xmlConf += "</ShowSeconds>";
+                    xmlConf += "<CitiesSortOrder>";
+                    xmlConf += sortByTimeCheckbox.Checked ? "Time" : "Name";
+                    xmlConf += "</CitiesSortOrder>";
                     xmlConf += "</config>";
 
                     using (Stream stream = xmlConf.ToStream())
@@ -261,6 +274,30 @@ namespace ScreenSaver
             }
 
             cityListview.Sort();
+        }
+
+        private void sortByNameCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (((RadioButton) sender).Checked)
+            {
+                sortByTimeCheckbox.Checked = false;
+            }
+            else
+            {
+                sortByTimeCheckbox.Checked = true;
+            }
+        }
+
+        private void sortByTimeCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (((RadioButton)sender).Checked)
+            {
+                sortByNameCheckbox.Checked = false;
+            }
+            else
+            {
+                sortByNameCheckbox.Checked = true;
+            }
         }
     }
 }

@@ -43,6 +43,8 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.amPm12HoursIndicatorCheckbox = new System.Windows.Forms.CheckBox();
             this.showSecondsCheckbox = new System.Windows.Forms.CheckBox();
+            this.sortByTimeCheckbox = new System.Windows.Forms.RadioButton();
+            this.sortByNameCheckbox = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -158,9 +160,9 @@
             // pictureBox1
             // 
             this.pictureBox1.Image = global::ScreenSaver.Properties.Resources.screenshot;
-            this.pictureBox1.Location = new System.Drawing.Point(395, 19);
+            this.pictureBox1.Location = new System.Drawing.Point(444, 11);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(137, 75);
+            this.pictureBox1.Size = new System.Drawing.Size(123, 75);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 12;
             this.pictureBox1.TabStop = false;
@@ -185,11 +187,37 @@
             this.showSecondsCheckbox.Text = "Show Seconds";
             this.showSecondsCheckbox.UseVisualStyleBackColor = true;
             // 
+            // sortByTimeCheckbox
+            // 
+            this.sortByTimeCheckbox.AutoSize = true;
+            this.sortByTimeCheckbox.Location = new System.Drawing.Point(444, 250);
+            this.sortByTimeCheckbox.Name = "sortByTimeCheckbox";
+            this.sortByTimeCheckbox.Size = new System.Drawing.Size(118, 17);
+            this.sortByTimeCheckbox.TabIndex = 15;
+            this.sortByTimeCheckbox.TabStop = true;
+            this.sortByTimeCheckbox.Text = "Sort Cities By Time";
+            this.sortByTimeCheckbox.UseVisualStyleBackColor = true;
+            this.sortByTimeCheckbox.CheckedChanged += new System.EventHandler(this.sortByTimeCheckbox_CheckedChanged);
+            // 
+            // sortByNameCheckbox
+            // 
+            this.sortByNameCheckbox.AutoSize = true;
+            this.sortByNameCheckbox.Location = new System.Drawing.Point(444, 227);
+            this.sortByNameCheckbox.Name = "sortByNameCheckbox";
+            this.sortByNameCheckbox.Size = new System.Drawing.Size(123, 17);
+            this.sortByNameCheckbox.TabIndex = 16;
+            this.sortByNameCheckbox.TabStop = true;
+            this.sortByNameCheckbox.Text = "Sort Cities By Name";
+            this.sortByNameCheckbox.UseVisualStyleBackColor = true;
+            this.sortByNameCheckbox.CheckedChanged += new System.EventHandler(this.sortByNameCheckbox_CheckedChanged);
+            // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(544, 320);
+            this.ClientSize = new System.Drawing.Size(581, 320);
+            this.Controls.Add(this.sortByNameCheckbox);
+            this.Controls.Add(this.sortByTimeCheckbox);
             this.Controls.Add(this.showSecondsCheckbox);
             this.Controls.Add(this.amPm12HoursIndicatorCheckbox);
             this.Controls.Add(this.pictureBox1);
@@ -229,5 +257,7 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.CheckBox amPm12HoursIndicatorCheckbox;
         private System.Windows.Forms.CheckBox showSecondsCheckbox;
+        private System.Windows.Forms.RadioButton sortByTimeCheckbox;
+        private System.Windows.Forms.RadioButton sortByNameCheckbox;
     }
 }

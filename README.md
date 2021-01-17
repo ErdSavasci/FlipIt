@@ -1,4 +1,10 @@
 # FlipIt
+
+This repository is forked from https://github.com/phaselden/FlipIt and some changes are done on top of it.
+<br> If you encounter any problem while running the screensaver, please inform me.
+
+Original ReadMe content is as below:
+
 Flip Clock Screensaver. Inspired by [Fliqlo](http://fliqlo.com/). Fliqlo on Windows stopped working with a recent (Dec 2015?) Flash update which prompted this project. This project does NOT use Flash.
 
 ![Screenshot](screenshot.png)

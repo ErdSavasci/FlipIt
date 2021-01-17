@@ -10,6 +10,7 @@ namespace ScreenSaver
             TimeZoneID = timeZoneID;
         }
 
+        internal int CityID { get; set; }
         internal string DisplayName { get; }
         internal string TimeZoneID { get; }
         internal DateTime CurrentTime { get; private set; }

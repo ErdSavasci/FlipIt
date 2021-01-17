@@ -5,7 +5,7 @@ namespace ScreenSaver
 {
     // Copied from https://web.archive.org/web/20111110163706/http://www.switchonthecode.com/tutorials/csharp-creating-rounded-rectangles-using-a-graphics-path
     
-    public enum RectangleCorners
+    public enum RectangleCorner
     {
         None = 0, TopLeft = 1, TopRight = 2, BottomLeft = 4, BottomRight = 8,
         All = TopLeft | TopRight | BottomLeft | BottomRight
@@ -13,7 +13,7 @@ namespace ScreenSaver
     public abstract class RoundedRectangle
     {
         public static GraphicsPath Create(int x, int y, int width, int height,
-            int radius, RectangleCorners corners)
+            int radius, RectangleCorner corners)
         {
             int xw = x + width;
             int yh = y + height;
@@ -29,7 +29,7 @@ namespace ScreenSaver
             p.StartFigure();
 
             //Top Left Corner
-            if ((RectangleCorners.TopLeft & corners) == RectangleCorners.TopLeft)
+            if ((RectangleCorner.TopLeft & corners) == RectangleCorner.TopLeft)
             {
                 p.AddArc(x, y, r2, r2, 180, 90);
             }
@@ -43,7 +43,7 @@ namespace ScreenSaver
             p.AddLine(xr, y, xwr, y);
 
             //Top Right Corner
-            if ((RectangleCorners.TopRight & corners) == RectangleCorners.TopRight)
+            if ((RectangleCorner.TopRight & corners) == RectangleCorner.TopRight)
             {
                 p.AddArc(xwr2, y, r2, r2, 270, 90);
             }
@@ -57,7 +57,7 @@ namespace ScreenSaver
             p.AddLine(xw, yr, xw, yhr);
 
             //Bottom Right Corner
-            if ((RectangleCorners.BottomRight & corners) == RectangleCorners.BottomRight)
+            if ((RectangleCorner.BottomRight & corners) == RectangleCorner.BottomRight)
             {
                 p.AddArc(xwr2, yhr2, r2, r2, 0, 90);
             }
@@ -71,7 +71,7 @@ namespace ScreenSaver
             p.AddLine(xwr, yh, xr, yh);
 
             //Bottom Left Corner
-            if ((RectangleCorners.BottomLeft & corners) == RectangleCorners.BottomLeft)
+            if ((RectangleCorner.BottomLeft & corners) == RectangleCorner.BottomLeft)
             {
                 p.AddArc(x, yhr2, r2, r2, 90, 90);
             }
@@ -88,14 +88,14 @@ namespace ScreenSaver
             return p;
         }
 
-        public static GraphicsPath Create(Rectangle rect, int radius, RectangleCorners c)
+        public static GraphicsPath Create(Rectangle rect, int radius, RectangleCorner c)
         {
             return Create(rect.X, rect.Y, rect.Width, rect.Height, radius, c);
         }
 
         public static GraphicsPath Create(int x, int y, int width, int height, int radius)
         {
-            return Create(x, y, width, height, radius, RectangleCorners.All);
+            return Create(x, y, width, height, radius, RectangleCorner.All);
         }
 
         public static GraphicsPath Create(Rectangle rect, int radius)

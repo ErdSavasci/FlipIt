@@ -30,6 +30,7 @@ namespace ScreenSaver
                 new City("GMT Standard Time", "London"),
                 new City("Pacific Standard Time", "Los Angeles"),
                 new City("Eastern Standard Time", "New York"),
+                new City("Central European Standard Time", "Paris"),
                 new City("Tokyo Standard Time", "Tokyo"),
                 new City("Eastern Standard Time", "Toronto")
             };
@@ -47,8 +48,9 @@ namespace ScreenSaver
                 { "4", new City("GMT Standard Time", "London") },
                 { "5", new City("Pacific Standard Time", "Los Angeles") },
                 { "6", new City("Eastern Standard Time", "New York") },
-                { "7", new City("Tokyo Standard Time", "Tokyo") },
-                { "8", new City("Eastern Standard Time", "Toronto") }
+                { "7", new City("Central European Standard Time", "Paris") },
+                { "8", new City("Tokyo Standard Time", "Tokyo") },
+                { "9", new City("Eastern Standard Time", "Toronto") }
             };
 
             return defaultCities;

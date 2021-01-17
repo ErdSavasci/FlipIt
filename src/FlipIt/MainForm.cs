@@ -18,20 +18,9 @@ namespace ScreenSaver
     {
         private const int SplitWidth = 4;
         private const int FontScaleFactor = 3;
-
-        private string userApplicationDataFolderPath;
-        private string configFilePath;
-        private readonly bool isPrimaryScreen;
-        private Point mouseLocation;
-        private readonly bool previewMode;
-        private readonly bool showSeconds;
-        private int lastMinute = -1;
-        private readonly int fontSize = 350;
-        private Font primaryFont;
-        private Font cityFont;
-        private Font smallCityFont;
-        private Font primarySmallFont;
-        private Graphics graphics;
+        private const int HorizontalGapBetweenBoxesPercent = 5;
+        private const int VerticalGapBetweenBoxesPercent = 10;
+        private const int BoxWidthPercentage = 70;
 
         // Alternative fonts:
         // * league-gothic from https://github.com/theleagueof/league-gothic
@@ -39,23 +28,35 @@ namespace ScreenSaver
 
         private const string familyName = "Oswald"; //"Texgyreheroscn";"Bebas"
 
-        private Graphics Gfx => graphics ?? (graphics = CreateGraphics());
-
-        private Font PrimaryFont => primaryFont ?? (primaryFont = new Font(familyName, fontSize, FontStyle.Bold));
-        private Font PrimarySmallFont => primarySmallFont ?? (primarySmallFont = new Font(familyName, fontSize / 9, FontStyle.Bold));
-
         private static readonly Color backColorTop = Color.FromArgb(255, 15, 15, 15);
         private static readonly Color backColorBottom = Color.FromArgb(255, 10, 10, 10);
-
+        private readonly bool isPrimaryScreen;
+        private readonly bool previewMode;
+        private readonly int fontSize = 350;
+        private readonly bool will24HoursWillBeShowed;
+        private readonly bool willSecondsBeShowed;
         private readonly Brush backFillTop = new SolidBrush(backColorTop);
         private readonly Brush backFillBottom = new SolidBrush(backColorBottom);
         private readonly Brush FontBrush = new SolidBrush(Color.FromArgb(255, 183, 183, 183));
         private readonly Pen SplitPen = new Pen(Color.Black, SplitWidth);
         private readonly Pen SmallSplitPen = new Pen(Color.Black, SplitWidth / 2);
 
-        const int BoxWidthPercentage = 70;
-        private const int HorizontalGapBetweenBoxesPercent = 5;
-        private const int VerticalGapBetweenBoxesPercent = 10;
+        private string userApplicationDataFolderPath;
+        private string configFilePath;
+        private Point mouseLocation;
+        private int lastMinute = -1;
+        
+        private Font cityFont;
+        private Font smallCityFont;
+
+        private Graphics graphics;
+        private Graphics Gfx => graphics ?? (graphics = CreateGraphics());
+
+        private Font primaryFont;
+        private Font PrimaryFont => primaryFont ?? (primaryFont = new Font(familyName, fontSize, FontStyle.Bold));
+        
+        private Font primarySmallFont;
+        private Font PrimarySmallFont => primarySmallFont ?? (primarySmallFont = new Font(familyName, fontSize / 9, FontStyle.Bold));
 
         private List<City> cities;
         private List<City> Cities => cities ?? (cities = GetCities());
@@ -74,7 +75,8 @@ namespace ScreenSaver
             fontSize = bounds.Height / FontScaleFactor;
 
             GetConfigFilePath();
-            showSeconds = false;
+            will24HoursWillBeShowed = Will24HoursBeShowed();
+            willSecondsBeShowed = WillSecondsBeShowed();
         }
 
         public MainForm(IntPtr previewWndHandle)
@@ -96,8 +98,9 @@ namespace ScreenSaver
             fontSize = Size.Height / FontScaleFactor;
 
             GetConfigFilePath();
+            will24HoursWillBeShowed = Will24HoursBeShowed();
+            willSecondsBeShowed = WillSecondsBeShowed();
             previewMode = true;
-            showSeconds = false;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -133,7 +136,7 @@ namespace ScreenSaver
                 lastMinute = minute;
                 DrawIt();
             }
-            if (showSeconds)
+            if (willSecondsBeShowed)
             {
                 DrawIt();
             }
@@ -163,18 +166,18 @@ namespace ScreenSaver
         private void DrawCurrentTime()
         {
             var height = PrimaryFont.Height * 10 / 9;
-            var width = !showSeconds ? Convert.ToInt32(2.05 * height) : Convert.ToInt32(3.1 * height);
+            var width = !willSecondsBeShowed ? Convert.ToInt32(2.05 * height) : Convert.ToInt32(3.1 * height);
 
             var x = (Width - width) / 2;
             var y = (Height - height) / 2;
 
             var pm = SystemTime.Now.Hour >= 12;
-            DrawIt(x, y, height, SystemTime.Now.ToString(Will24HoursBeShowed() ? "HH" : "hh", CultureInfo.InvariantCulture), Will24HoursBeShowed() ? null : (pm ? null : "AM"), Will24HoursBeShowed() ? null : (pm ? "PM" : null)); // The % avoids a FormatException https://msdn.microsoft.com/en-us/library/8kb3ddd4(v=vs.110).aspx#UsingSingleSpecifiers
+            DrawIt(x, y, height, SystemTime.Now.ToString(will24HoursWillBeShowed ? "HH" : "hh", CultureInfo.InvariantCulture), will24HoursWillBeShowed ? null : (pm ? null : "AM"), will24HoursWillBeShowed ? null : (pm ? "PM" : null)); // The % avoids a FormatException https://msdn.microsoft.com/en-us/library/8kb3ddd4(v=vs.110).aspx#UsingSingleSpecifiers
 
             x += height + (height / 20);
             DrawIt(x, y, height, SystemTime.Now.ToString("mm", CultureInfo.InvariantCulture));
 
-            if (showSeconds)
+            if (willSecondsBeShowed)
             {
                 x += height + (height / 20);
                 DrawIt(x, y, height, SystemTime.Now.ToString("ss", CultureInfo.InvariantCulture));
@@ -290,7 +293,7 @@ namespace ScreenSaver
 
         private string FormatTime(DateTime time)
         {
-            var result = time.ToString(Will24HoursBeShowed() ? "HH:mm" + (showSeconds ? ":ss" : "") : "hh:mm" + (showSeconds ? ":ss" : "") + " tt", CultureInfo.InvariantCulture) + " ";
+            var result = time.ToString(will24HoursWillBeShowed ? "HH:mm" + (willSecondsBeShowed ? ":ss" : "") : "hh:mm" + (willSecondsBeShowed ? ":ss" : "") + " tt", CultureInfo.InvariantCulture) + " ";
             return $"{result,9}";
         }
 
@@ -322,6 +325,28 @@ namespace ScreenSaver
                         xmlDoc.Load(reader);
                         
                         return xmlDoc.GetElementsByTagName("Show24Hours")[0].InnerText.ToUpperInvariant().Equals("TRUE");
+                    }
+                }
+            }
+        }
+
+        private bool WillSecondsBeShowed()
+        {
+            if (!File.Exists(configFilePath))
+            {
+                return false;
+            }
+            else
+            {
+                XmlDocument xmlDoc = new XmlDocument();
+
+                using (StreamReader streamReader = new StreamReader(configFilePath, Encoding.UTF8))
+                {
+                    using (XmlReader reader = XmlReader.Create(streamReader, new XmlReaderSettings()))
+                    {
+                        xmlDoc.Load(reader);
+
+                        return xmlDoc.GetElementsByTagName("ShowSeconds")[0].InnerText.ToUpperInvariant().Equals("TRUE");
                     }
                 }
             }
@@ -465,7 +490,9 @@ namespace ScreenSaver
             Application.Exit();
         }
 
+        #pragma warning disable IDE0051 // Remove unused private members
         private new void Close()
+        #pragma warning restore IDE0051 // Remove unused private members
         {
             Dispose();
         }

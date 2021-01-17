@@ -95,6 +95,9 @@ namespace ScreenSaver
                         xmlConf += "<Show24Hours>";
                         xmlConf += "False";
                         xmlConf += "</Show24Hours>";
+                        xmlConf += "<ShowSeconds>";
+                        xmlConf += "False";
+                        xmlConf += "</ShowSeconds>";
                         xmlConf += "</config>";
 
                         using (Stream stream = xmlConf.ToStream())
@@ -126,6 +129,7 @@ namespace ScreenSaver
                         }
 
                         amPm12HoursIndicatorCheckbox.Checked = xmlDoc.GetElementsByTagName("Show24Hours")[0].InnerText.ToUpperInvariant().Equals("FALSE");
+                        showSecondsCheckbox.Checked = xmlDoc.GetElementsByTagName("ShowSeconds")[0].InnerText.ToUpperInvariant().Equals("TRUE");
                     }
                 }
             }
@@ -201,6 +205,9 @@ namespace ScreenSaver
                     xmlConf += "<Show24Hours>";
                     xmlConf += amPm12HoursIndicatorCheckbox.Checked ? "False" : "True";
                     xmlConf += "</Show24Hours>";
+                    xmlConf += "<ShowSeconds>";
+                    xmlConf += showSecondsCheckbox.Checked ? "True" : "False";
+                    xmlConf += "</ShowSeconds>";
                     xmlConf += "</config>";
 
                     using (Stream stream = xmlConf.ToStream())

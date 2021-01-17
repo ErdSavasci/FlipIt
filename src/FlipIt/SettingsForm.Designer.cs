@@ -42,6 +42,7 @@
             this.timezonesCombo = new System.Windows.Forms.ComboBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.amPm12HoursIndicatorCheckbox = new System.Windows.Forms.CheckBox();
+            this.showSecondsCheckbox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -174,11 +175,22 @@
             this.amPm12HoursIndicatorCheckbox.Text = "Show AM/PM";
             this.amPm12HoursIndicatorCheckbox.UseVisualStyleBackColor = true;
             // 
+            // showSecondsCheckbox
+            // 
+            this.showSecondsCheckbox.AutoSize = true;
+            this.showSecondsCheckbox.Location = new System.Drawing.Point(444, 151);
+            this.showSecondsCheckbox.Name = "showSecondsCheckbox";
+            this.showSecondsCheckbox.Size = new System.Drawing.Size(101, 17);
+            this.showSecondsCheckbox.TabIndex = 14;
+            this.showSecondsCheckbox.Text = "Show Seconds";
+            this.showSecondsCheckbox.UseVisualStyleBackColor = true;
+            // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(544, 320);
+            this.Controls.Add(this.showSecondsCheckbox);
             this.Controls.Add(this.amPm12HoursIndicatorCheckbox);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.timezonesCombo);
@@ -216,5 +228,6 @@
         private System.Windows.Forms.ColumnHeader timezone;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.CheckBox amPm12HoursIndicatorCheckbox;
+        private System.Windows.Forms.CheckBox showSecondsCheckbox;
     }
 }

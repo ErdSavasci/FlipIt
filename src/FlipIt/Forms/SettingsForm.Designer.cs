@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.saveButton = new System.Windows.Forms.Button();
@@ -40,12 +41,20 @@
             this.timezone = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.removeBtn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.timezonesCombo = new System.Windows.Forms.ComboBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.persistentFrameImageBox = new System.Windows.Forms.PictureBox();
             this.amPm12HoursIndicatorCheckbox = new System.Windows.Forms.CheckBox();
             this.showSecondsCheckbox = new System.Windows.Forms.CheckBox();
             this.sortByTimeCheckbox = new System.Windows.Forms.RadioButton();
             this.sortByNameCheckbox = new System.Windows.Forms.RadioButton();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.timeBoxScaleTrackBar = new System.Windows.Forms.TrackBar();
+            this.label4 = new System.Windows.Forms.Label();
+            this.multiMonitorStatusLabel = new System.Windows.Forms.Label();
+            this.multiMonitorStatusResultLabel = new System.Windows.Forms.Label();
+            this.previewTimer = new System.Windows.Forms.Timer(this.components);
+            this.showWorldCityClockAtMainCheckbox = new System.Windows.Forms.CheckBox();
+            this.manualTimezoneCheckbox = new System.Windows.Forms.CheckBox();
+            ((System.ComponentModel.ISupportInitialize)(this.persistentFrameImageBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.timeBoxScaleTrackBar)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -104,8 +113,10 @@
             // 
             this.cityTextbox.Location = new System.Drawing.Point(20, 100);
             this.cityTextbox.Name = "cityTextbox";
-            this.cityTextbox.Size = new System.Drawing.Size(177, 22);
+            this.cityTextbox.Size = new System.Drawing.Size(106, 22);
             this.cityTextbox.TabIndex = 8;
+            this.cityTextbox.Enter += new System.EventHandler(this.CityTextbox_Enter);
+            this.cityTextbox.Leave += new System.EventHandler(this.CityTextbox_Leave);
             // 
             // addButton
             // 
@@ -157,70 +168,145 @@
             this.timezonesCombo.Size = new System.Drawing.Size(186, 21);
             this.timezonesCombo.TabIndex = 11;
             // 
-            // pictureBox1
+            // persistentFrameImageBox
             // 
-            this.pictureBox1.Image = global::ScreenSaver.Properties.Resources.screenshot;
-            this.pictureBox1.Location = new System.Drawing.Point(444, 11);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(123, 75);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 12;
-            this.pictureBox1.TabStop = false;
+            this.persistentFrameImageBox.Image = global::ScreenSaver.Properties.Resources.black;
+            this.persistentFrameImageBox.Location = new System.Drawing.Point(444, 11);
+            this.persistentFrameImageBox.Name = "persistentFrameImageBox";
+            this.persistentFrameImageBox.Size = new System.Drawing.Size(123, 75);
+            this.persistentFrameImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.persistentFrameImageBox.TabIndex = 12;
+            this.persistentFrameImageBox.TabStop = false;
+            this.persistentFrameImageBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.PersistentFrameImageBox_MouseClick);
             // 
             // amPm12HoursIndicatorCheckbox
             // 
             this.amPm12HoursIndicatorCheckbox.AutoSize = true;
-            this.amPm12HoursIndicatorCheckbox.Location = new System.Drawing.Point(444, 128);
+            this.amPm12HoursIndicatorCheckbox.Location = new System.Drawing.Point(446, 128);
             this.amPm12HoursIndicatorCheckbox.Name = "amPm12HoursIndicatorCheckbox";
             this.amPm12HoursIndicatorCheckbox.Size = new System.Drawing.Size(95, 17);
             this.amPm12HoursIndicatorCheckbox.TabIndex = 13;
             this.amPm12HoursIndicatorCheckbox.Text = "Show AM/PM";
             this.amPm12HoursIndicatorCheckbox.UseVisualStyleBackColor = true;
+            this.amPm12HoursIndicatorCheckbox.CheckedChanged += new System.EventHandler(this.AmPm12HoursIndicatorCheckbox_CheckedChanged);
             // 
             // showSecondsCheckbox
             // 
             this.showSecondsCheckbox.AutoSize = true;
-            this.showSecondsCheckbox.Location = new System.Drawing.Point(444, 151);
+            this.showSecondsCheckbox.Location = new System.Drawing.Point(446, 151);
             this.showSecondsCheckbox.Name = "showSecondsCheckbox";
             this.showSecondsCheckbox.Size = new System.Drawing.Size(101, 17);
             this.showSecondsCheckbox.TabIndex = 14;
             this.showSecondsCheckbox.Text = "Show Seconds";
             this.showSecondsCheckbox.UseVisualStyleBackColor = true;
+            this.showSecondsCheckbox.CheckedChanged += new System.EventHandler(this.ShowSecondsCheckbox_CheckedChanged);
             // 
             // sortByTimeCheckbox
             // 
             this.sortByTimeCheckbox.AutoSize = true;
-            this.sortByTimeCheckbox.Location = new System.Drawing.Point(444, 250);
+            this.sortByTimeCheckbox.Location = new System.Drawing.Point(446, 250);
             this.sortByTimeCheckbox.Name = "sortByTimeCheckbox";
             this.sortByTimeCheckbox.Size = new System.Drawing.Size(118, 17);
             this.sortByTimeCheckbox.TabIndex = 15;
             this.sortByTimeCheckbox.TabStop = true;
             this.sortByTimeCheckbox.Text = "Sort Cities By Time";
             this.sortByTimeCheckbox.UseVisualStyleBackColor = true;
-            this.sortByTimeCheckbox.CheckedChanged += new System.EventHandler(this.sortByTimeCheckbox_CheckedChanged);
+            this.sortByTimeCheckbox.CheckedChanged += new System.EventHandler(this.SortByTimeCheckbox_CheckedChanged);
             // 
             // sortByNameCheckbox
             // 
             this.sortByNameCheckbox.AutoSize = true;
-            this.sortByNameCheckbox.Location = new System.Drawing.Point(444, 227);
+            this.sortByNameCheckbox.Location = new System.Drawing.Point(446, 227);
             this.sortByNameCheckbox.Name = "sortByNameCheckbox";
             this.sortByNameCheckbox.Size = new System.Drawing.Size(123, 17);
             this.sortByNameCheckbox.TabIndex = 16;
             this.sortByNameCheckbox.TabStop = true;
             this.sortByNameCheckbox.Text = "Sort Cities By Name";
             this.sortByNameCheckbox.UseVisualStyleBackColor = true;
-            this.sortByNameCheckbox.CheckedChanged += new System.EventHandler(this.sortByNameCheckbox_CheckedChanged);
+            this.sortByNameCheckbox.CheckedChanged += new System.EventHandler(this.SortByNameCheckbox_CheckedChanged);
+            // 
+            // timeBoxScaleTrackBar
+            // 
+            this.timeBoxScaleTrackBar.LargeChange = 1;
+            this.timeBoxScaleTrackBar.Location = new System.Drawing.Point(438, 184);
+            this.timeBoxScaleTrackBar.Maximum = 5;
+            this.timeBoxScaleTrackBar.Minimum = 1;
+            this.timeBoxScaleTrackBar.Name = "timeBoxScaleTrackBar";
+            this.timeBoxScaleTrackBar.Size = new System.Drawing.Size(129, 45);
+            this.timeBoxScaleTrackBar.TabIndex = 17;
+            this.timeBoxScaleTrackBar.Value = 1;
+            this.timeBoxScaleTrackBar.ValueChanged += new System.EventHandler(this.TimeBoxScaleTrackBar_ValueChanged);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(443, 171);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(39, 13);
+            this.label4.TabIndex = 18;
+            this.label4.Text = "Scale: ";
+            // 
+            // multiMonitorStatusLabel
+            // 
+            this.multiMonitorStatusLabel.AutoSize = true;
+            this.multiMonitorStatusLabel.Location = new System.Drawing.Point(321, 11);
+            this.multiMonitorStatusLabel.Name = "multiMonitorStatusLabel";
+            this.multiMonitorStatusLabel.Size = new System.Drawing.Size(117, 13);
+            this.multiMonitorStatusLabel.TabIndex = 19;
+            this.multiMonitorStatusLabel.Text = "Multi Monitor Status:";
+            // 
+            // multiMonitorStatusResultLabel
+            // 
+            this.multiMonitorStatusResultLabel.AutoSize = true;
+            this.multiMonitorStatusResultLabel.Location = new System.Drawing.Point(321, 29);
+            this.multiMonitorStatusResultLabel.Name = "multiMonitorStatusResultLabel";
+            this.multiMonitorStatusResultLabel.Size = new System.Drawing.Size(11, 13);
+            this.multiMonitorStatusResultLabel.TabIndex = 20;
+            this.multiMonitorStatusResultLabel.Text = "-";
+            // 
+            // previewTimer
+            // 
+            this.previewTimer.Interval = 3000;
+            this.previewTimer.Tick += new System.EventHandler(this.PreviewTimer_Tick);
+            // 
+            // showWorldCityClockAtMainCheckbox
+            // 
+            this.showWorldCityClockAtMainCheckbox.AutoSize = true;
+            this.showWorldCityClockAtMainCheckbox.Location = new System.Drawing.Point(197, 278);
+            this.showWorldCityClockAtMainCheckbox.Name = "showWorldCityClockAtMainCheckbox";
+            this.showWorldCityClockAtMainCheckbox.Size = new System.Drawing.Size(241, 17);
+            this.showWorldCityClockAtMainCheckbox.TabIndex = 21;
+            this.showWorldCityClockAtMainCheckbox.Text = "Show Time In World Cities At Main Screen";
+            this.showWorldCityClockAtMainCheckbox.UseVisualStyleBackColor = true;
+            // 
+            // manualTimezoneCheckbox
+            // 
+            this.manualTimezoneCheckbox.AutoSize = true;
+            this.manualTimezoneCheckbox.Location = new System.Drawing.Point(132, 103);
+            this.manualTimezoneCheckbox.Name = "manualTimezoneCheckbox";
+            this.manualTimezoneCheckbox.Size = new System.Drawing.Size(65, 17);
+            this.manualTimezoneCheckbox.TabIndex = 22;
+            this.manualTimezoneCheckbox.Text = "Manual";
+            this.manualTimezoneCheckbox.UseVisualStyleBackColor = true;
+            this.manualTimezoneCheckbox.CheckedChanged += new System.EventHandler(this.ManualTimezoneCheckbox_CheckedChanged);
             // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(581, 320);
+            this.ControlBox = false;
+            this.Controls.Add(this.manualTimezoneCheckbox);
+            this.Controls.Add(this.showWorldCityClockAtMainCheckbox);
+            this.Controls.Add(this.multiMonitorStatusResultLabel);
+            this.Controls.Add(this.multiMonitorStatusLabel);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.timeBoxScaleTrackBar);
             this.Controls.Add(this.sortByNameCheckbox);
             this.Controls.Add(this.sortByTimeCheckbox);
             this.Controls.Add(this.showSecondsCheckbox);
             this.Controls.Add(this.amPm12HoursIndicatorCheckbox);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.persistentFrameImageBox);
             this.Controls.Add(this.timezonesCombo);
             this.Controls.Add(this.cityListview);
             this.Controls.Add(this.addButton);
@@ -233,9 +319,14 @@
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "SettingsForm";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "FlipIt Settings";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.TopMost = true;
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.SettingsForm_MouseClick);
+            ((System.ComponentModel.ISupportInitialize)(this.persistentFrameImageBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.timeBoxScaleTrackBar)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -254,10 +345,17 @@
         private System.Windows.Forms.ColumnHeader removeBtn;
         private System.Windows.Forms.ComboBox timezonesCombo;
         private System.Windows.Forms.ColumnHeader timezone;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox persistentFrameImageBox;
         private System.Windows.Forms.CheckBox amPm12HoursIndicatorCheckbox;
         private System.Windows.Forms.CheckBox showSecondsCheckbox;
         private System.Windows.Forms.RadioButton sortByTimeCheckbox;
         private System.Windows.Forms.RadioButton sortByNameCheckbox;
+        private System.Windows.Forms.TrackBar timeBoxScaleTrackBar;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label multiMonitorStatusLabel;
+        private System.Windows.Forms.Label multiMonitorStatusResultLabel;
+        private System.Windows.Forms.Timer previewTimer;
+        private System.Windows.Forms.CheckBox showWorldCityClockAtMainCheckbox;
+        private System.Windows.Forms.CheckBox manualTimezoneCheckbox;
     }
 }

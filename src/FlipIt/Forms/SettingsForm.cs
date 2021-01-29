@@ -2,11 +2,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -17,11 +18,17 @@ namespace ScreenSaver
         private readonly string userApplicationDataFolderPath;
         private readonly string configFilePath;
         private readonly ListViewColumnSorter listViewColumnSorter = new ListViewColumnSorter();
+
+        private MainForm persistentFrame;
         private Dictionary<string, City> configCities = new Dictionary<string, City>();
+        private int oldTimeBoxScaleTrackBarValue;
+        private int tickValue;
 
         public SettingsForm()
         {
             InitializeComponent();
+
+            DisableFocusAll();
 
             userApplicationDataFolderPath = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
             if (Environment.OSVersion.Version.Major >= 6)
@@ -101,6 +108,20 @@ namespace ScreenSaver
                         xmlConf += "<CitiesSortOrder>";
                         xmlConf += "Name";
                         xmlConf += "</CitiesSortOrder>";
+                        xmlConf += "<TimeBoxScale>";
+                        xmlConf += "2";
+                        xmlConf += "</TimeBoxScale>";
+                        xmlConf += "<MainScreen>";
+                        xmlConf += "SingleClock";
+                        xmlConf += "</MainScreen>";
+                        xmlConf += "<!-- Replace <API_KEY> field with your API KEY -->";
+                        xmlConf += "<LatLonAPI>";
+                        xmlConf += HttpUtility.UrlEncode(APIs.defaultLatLonAPI);
+                        xmlConf += "</LatLonAPI>";
+                        xmlConf += "<!-- Replace <USERNAME> field with your USERNAME -->";
+                        xmlConf += "<TimezoneAPI>";
+                        xmlConf += HttpUtility.UrlEncode(APIs.defaultTimezoneAPI);
+                        xmlConf += "</TimezoneAPI>";
                         xmlConf += "</config>";
 
                         using (Stream stream = xmlConf.ToStream())
@@ -116,8 +137,11 @@ namespace ScreenSaver
                         showSecondsCheckbox.Checked = false;
                         sortByNameCheckbox.Checked = true;
                         sortByTimeCheckbox.Checked = false;
+                        timeBoxScaleTrackBar.Value = 2;
+                        showWorldCityClockAtMainCheckbox.Checked = false;
+                        APIs.LatLonAPIUrl = APIs.defaultLatLonAPI;
+                        APIs.TimezoneAPIUrl = APIs.defaultTimezoneAPI;
                     }
-
                 }
             }
             else
@@ -140,6 +164,17 @@ namespace ScreenSaver
                         showSecondsCheckbox.Checked = xmlDoc.GetElementsByTagName("ShowSeconds")[0].InnerText.ToUpperInvariant().Equals("TRUE");
                         sortByNameCheckbox.Checked = xmlDoc.GetElementsByTagName("CitiesSortOrder")[0].InnerText.ToUpperInvariant().Equals("NAME");
                         sortByTimeCheckbox.Checked = !sortByNameCheckbox.Checked;
+                        try
+                        {
+                            timeBoxScaleTrackBar.Value = int.Parse(xmlDoc.GetElementsByTagName("TimeBoxScale")[0].InnerText, CultureInfo.InvariantCulture);
+                        }
+                        catch (Exception ex) when (ex is FormatException || ex is OverflowException)
+                        {
+                            timeBoxScaleTrackBar.Value = 2;
+                        }
+                        showWorldCityClockAtMainCheckbox.Checked = xmlDoc.GetElementsByTagName("MainScreen")[0].InnerText.ToUpperInvariant().Equals("WORLDCITIES");
+                        APIs.LatLonAPIUrl = HttpUtility.UrlDecode(xmlDoc.GetElementsByTagName("LatLonAPI")[0].InnerText);
+                        APIs.TimezoneAPIUrl = HttpUtility.UrlDecode(xmlDoc.GetElementsByTagName("TimezoneAPI")[0].InnerText);
                     }
                 }
             }
@@ -173,12 +208,20 @@ namespace ScreenSaver
                 timezonesCombo.Items.Add(timezone);
                 timezonesCombo.SelectedIndex = 0;
             }
+            timezonesCombo.Enabled = false;
+
+            multiMonitorStatusResultLabel.Text = Screen.AllScreens.Length > 1 ? Properties.Resources.ResourceManager.GetString("OK", CultureInfo.InvariantCulture) : Properties.Resources.ResourceManager.GetString("NOT_FOUND", CultureInfo.InvariantCulture);
+            multiMonitorStatusResultLabel.ForeColor = Screen.AllScreens.Length > 1 ? Color.Green : Color.Red;
+
+            cityTextbox.Text = Properties.Resources.ResourceManager.GetString("PLACEHOLDER", CultureInfo.InvariantCulture);
+
+            ShowOrUpdatePersistentFrame();
         }
 
         private void OnButtonActionClick(object sender, ListViewColumnMouseEventArgs e)
-        {
+        { 
+            configCities.Remove((cityListview.Items[e.Item.Text].Index + 1).ToString(CultureInfo.InvariantCulture));
             cityListview.Items.Remove(e.Item);
-            configCities.Remove((e.Item.Index + 1).ToString(CultureInfo.InvariantCulture));
             cityListview.Sort();
         }
 
@@ -221,6 +264,20 @@ namespace ScreenSaver
                     xmlConf += "<CitiesSortOrder>";
                     xmlConf += sortByTimeCheckbox.Checked ? "Time" : "Name";
                     xmlConf += "</CitiesSortOrder>";
+                    xmlConf += "<TimeBoxScale>";
+                    xmlConf += timeBoxScaleTrackBar.Value.ToString(CultureInfo.InvariantCulture);
+                    xmlConf += "</TimeBoxScale>";
+                    xmlConf += "<MainScreen>";
+                    xmlConf += showWorldCityClockAtMainCheckbox.Checked ? "WorldCities" : "SingleClock";
+                    xmlConf += "</MainScreen>";
+                    xmlConf += "<!-- Replace <API_KEY> field with your API KEY -->";
+                    xmlConf += "<LatLonAPI>";
+                    xmlConf += HttpUtility.UrlEncode(APIs.LatLonAPIUrl);
+                    xmlConf += "</LatLonAPI>";
+                    xmlConf += "<!-- Replace <USERNAME> field with your USERNAME -->";
+                    xmlConf += "<TimezoneAPI>";
+                    xmlConf += HttpUtility.UrlEncode(APIs.TimezoneAPIUrl);
+                    xmlConf += "</TimezoneAPI>";
                     xmlConf += "</config>";
 
                     using (Stream stream = xmlConf.ToStream())
@@ -254,7 +311,15 @@ namespace ScreenSaver
                 return;
             }
 
-            City city = new City(timezonesCombo.SelectedItem.ToString(), cityTextbox.Text);
+            City city;
+            if (manualTimezoneCheckbox.Checked)
+            {
+                city = new City(timezonesCombo.SelectedItem.ToString(), cityTextbox.Text);
+            }
+            else
+            {
+                city = new City(cityTextbox.Text);
+            }
 
             ListViewItem item = cityListview.Items.Add(city.DisplayName, city.DisplayName, 0);
             item.SubItems.Add(city.TimeZoneID);
@@ -276,7 +341,7 @@ namespace ScreenSaver
             cityListview.Sort();
         }
 
-        private void sortByNameCheckbox_CheckedChanged(object sender, EventArgs e)
+        private void SortByNameCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             if (((RadioButton) sender).Checked)
             {
@@ -288,7 +353,7 @@ namespace ScreenSaver
             }
         }
 
-        private void sortByTimeCheckbox_CheckedChanged(object sender, EventArgs e)
+        private void SortByTimeCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             if (((RadioButton)sender).Checked)
             {
@@ -298,6 +363,158 @@ namespace ScreenSaver
             {
                 sortByNameCheckbox.Checked = true;
             }
+        }
+
+        private new void Close()
+        {
+            Dispose();
+            base.Close();
+        }
+
+        private new void Dispose()
+        {
+            CustomDispose(true);
+        }
+
+        private void CustomDispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (persistentFrame != null)
+                {
+                    persistentFrame.Dispose();
+                }
+            }
+
+            Dispose(true);
+        }
+
+        private void ShowOrUpdatePersistentFrame()
+        {
+            if (persistentFrame != null)
+            {
+                persistentFrame.Close();
+            }
+
+            // if (restartTimer && previewTimer.Enabled)
+            // {
+            //    previewTimer.Stop();
+            //    tickValue = 0;
+            // }
+
+            if (tickValue % 2 == 0)
+            {
+                #pragma warning disable CA2000 // Dispose objects before losing scope
+                persistentFrame = new MainForm(this, persistentFrameImageBox.Handle, false, true, new object[3] { (!amPm12HoursIndicatorCheckbox.Checked).ToString(CultureInfo.InvariantCulture), showSecondsCheckbox.Checked.ToString(CultureInfo.InvariantCulture), (timeBoxScaleTrackBar.Value + ((3 - timeBoxScaleTrackBar.Value) * (float)0.75)).ToString(CultureInfo.InvariantCulture) });
+                persistentFrame.Show();
+                persistentFrame.MouseClick += PersistentFrameImageBox_MouseClick;
+                persistentFrame.Cursor = Cursors.Hand;
+                #pragma warning restore CA2000 // Dispose objects before losing scope
+            }
+            else
+            {
+                #pragma warning disable CA2000 // Dispose objects before losing scope
+                persistentFrame = new MainForm(this, persistentFrameImageBox.Handle, true, true, new object[3] { (!amPm12HoursIndicatorCheckbox.Checked).ToString(CultureInfo.InvariantCulture), showSecondsCheckbox.Checked.ToString(CultureInfo.InvariantCulture), (timeBoxScaleTrackBar.Value + ((3 - timeBoxScaleTrackBar.Value) * (float)0.75)).ToString(CultureInfo.InvariantCulture) });
+                persistentFrame.Show();
+                persistentFrame.MouseClick += PersistentFrameImageBox_MouseClick;
+                persistentFrame.Cursor = Cursors.Hand;
+                #pragma warning restore CA2000 // Dispose objects before losing scope
+            }
+
+            // if (!previewTimer.Enabled)
+            // {
+            //    previewTimer.Enabled = true;
+            //    previewTimer.Start();
+            // }
+        }
+
+        private void AmPm12HoursIndicatorCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            ShowOrUpdatePersistentFrame();
+        }
+
+        private void ShowSecondsCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (((CheckBox) sender).Checked)
+            {
+                oldTimeBoxScaleTrackBarValue = timeBoxScaleTrackBar.Value;
+                timeBoxScaleTrackBar.Maximum = 2;
+                timeBoxScaleTrackBar.Value = timeBoxScaleTrackBar.Maximum;
+            }
+            else
+            {
+                timeBoxScaleTrackBar.Maximum = 5;
+                timeBoxScaleTrackBar.Value = oldTimeBoxScaleTrackBarValue;
+            }
+
+            ShowOrUpdatePersistentFrame();
+        }
+
+        private void TimeBoxScaleTrackBar_ValueChanged(object sender, EventArgs e)
+        {
+            ShowOrUpdatePersistentFrame();
+        }
+
+        private void PreviewTimer_Tick(object sender, EventArgs e)
+        {
+            tickValue = (tickValue + 1) % 2;
+
+            ShowOrUpdatePersistentFrame();
+        }
+
+        private void ManualTimezoneCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (((CheckBox)sender).Checked)
+            {
+                timezonesCombo.Enabled = true;
+            }
+            else
+            {
+                timezonesCombo.Enabled = false;
+            }
+        }
+
+        private void CityTextbox_Enter(object sender, EventArgs e)
+        {
+            if (string.Equals(cityTextbox.Text, Properties.Resources.ResourceManager.GetString("PLACEHOLDER", CultureInfo.InvariantCulture), StringComparison.InvariantCulture))
+            {
+                cityTextbox.Text = "";
+            }
+        }
+
+        private void CityTextbox_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(cityTextbox.Text))
+            {
+                cityTextbox.Text = Properties.Resources.ResourceManager.GetString("PLACEHOLDER", CultureInfo.InvariantCulture);
+            }
+        }
+
+        private void PersistentFrameImageBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            tickValue = (tickValue + 1) % 2;
+
+            ShowOrUpdatePersistentFrame();
+        }
+
+        private void SettingsForm_MouseClick(object sender, MouseEventArgs e)
+        {
+            persistentFrameImageBox.Focus();
+        }
+
+        private void DisableFocusAll()
+        {
+            saveButton.TabStop = false;
+            cancelButton.TabStop = false;
+            cityTextbox.TabStop = false;
+            timezonesCombo.TabStop = false;
+            addButton.TabStop = false;
+            cityListview.TabStop = false;
+            amPm12HoursIndicatorCheckbox.TabStop = false;
+            showSecondsCheckbox.TabStop = false;
+            timeBoxScaleTrackBar.TabStop = false;
+            sortByNameCheckbox.TabStop = false;
+            sortByTimeCheckbox.TabStop = false;
         }
     }
 }

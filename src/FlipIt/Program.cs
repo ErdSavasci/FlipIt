@@ -49,7 +49,8 @@ namespace ScreenSaver
                         previewWndHandle = new IntPtr(long.Parse(secondArgument, CultureInfo.InvariantCulture));
                     }
 
-                    using (MainForm mainForm = new MainForm(previewWndHandle))
+                    // Do not show cities in preview mode
+                    using (MainForm mainForm = new MainForm(null, previewWndHandle, false, false, null))
                     {
                         Application.Run(mainForm);
                     }
@@ -81,9 +82,9 @@ namespace ScreenSaver
         static void ShowScreenSaver()
         {
             foreach (Screen screen in Screen.AllScreens)
-            {
+            {         
                 #pragma warning disable CA2000 // Dispose objects before losing scope
-                MainForm screensaver = new MainForm(screen.Bounds, screen.Primary);
+                MainForm screensaver = new MainForm(screen);
                 #pragma warning restore CA2000 // Dispose objects before losing scope
                 screensaver.Show();
             }

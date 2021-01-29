@@ -64,9 +64,9 @@
             this.label1.ForeColor = System.Drawing.SystemColors.ControlText;
             this.label1.Location = new System.Drawing.Point(15, 19);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(64, 30);
+            this.label1.Size = new System.Drawing.Size(107, 30);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Flip It";
+            this.label1.Text = "Flip It v1.3";
             // 
             // label2
             // 

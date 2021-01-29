@@ -1,7 +1,9 @@
-# FlipIt
+# FlipIt Version 1.3
 
 This repository is forked from https://github.com/phaselden/FlipIt and some changes are done on top of it.
 <br> If you encounter any problem while running the screensaver, please inform me.
+
+![SettingsScreenshot](settings_screenshot.png)
 
 Original ReadMe content is as below:
 
